@@ -22,3 +22,13 @@ function formatarData(
 
   return data.toLocaleDateString("pt-br");
 }
+
+function formatarInformacoes(
+  valor: number,
+  data: Date,
+  FormatoData: FormatoData
+): string {
+  const dataFormatada = formatarData(data, FormatoData);
+  const valorFormatado = formatarMoeda(valor);
+  return `${dataFormatada} - ${valorFormatado}`;
+}
