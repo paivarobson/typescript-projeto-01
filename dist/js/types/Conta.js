@@ -27,14 +27,14 @@ const Conta = {
     getDataAcesso() {
         return new Date();
     },
-    getGrupoTransacoes() {
+    getGruposTransacoes() {
         const gruposTransacoes = [];
         const listaTransacoes = structuredClone(transacoes);
         const transacoesOrdenadas = listaTransacoes.sort((t1, t2) => t2.data.getTime() - t1.data.getTime());
         let labelAtualGrupoTransacao = "";
         for (let transacao of transacoesOrdenadas) {
             let labelGrupoTransacao = transacao.data.toLocaleDateString("pt-br", { month: "long", year: "numeric" });
-            if (labelAtualGrupoTransacao != labelGrupoTransacao) {
+            if (labelAtualGrupoTransacao !== labelGrupoTransacao) {
                 labelAtualGrupoTransacao = labelGrupoTransacao;
                 gruposTransacoes.push({
                     label: labelGrupoTransacao,
@@ -52,13 +52,35 @@ const Conta = {
         else if (novaTransacao.tipoTransacao == TipoTransacao.TRANSFERENCIA ||
             novaTransacao.tipoTransacao == TipoTransacao.PAGAMENTO_BOLETO) {
             debitar(novaTransacao.valor);
+            novaTransacao.valor *= -1;
         }
         else {
             throw new Error("Tipo de Transação é inválida!");
         }
         transacoes.push(novaTransacao);
-        console.log(this.getGrupoTransacoes());
+        console.log(this.getGruposTransacoes());
         localStorage.setItem("transacoes", JSON.stringify(transacoes));
+    },
+    agruparTransacoes() {
+        const resumo = {
+            totalDepositos: 0,
+            totalTransferencias: 0,
+            totalPagamentosBoleto: 0,
+        };
+        this.transacoes.forEach((transacao) => {
+            switch (transacao.tipoTransacao) {
+                case TipoTransacao.DEPOSITO:
+                    resumo.totalDepositos += transacao.valor;
+                    break;
+                case TipoTransacao.TRANSFERENCIA:
+                    resumo.totalTransferencias += transacao.valor;
+                    break;
+                case TipoTransacao.PAGAMENTO_BOLETO:
+                    resumo.totalPagamentosBoleto += transacao.valor;
+                    break;
+            }
+        });
+        return resumo;
     },
 };
 export default Conta;

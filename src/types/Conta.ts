@@ -1,6 +1,7 @@
 import { Transacao } from "./Transacao.js";
 import { TipoTransacao } from "./TipoTransacao.js";
 import { GrupoTransacao } from "./GrupoTransacao.js";
+import { ResumoTransacoes } from "./ResumoTransacoes.js";
 
 let saldo: number = JSON.parse(localStorage.getItem("saldo")) || 0;
 
@@ -44,7 +45,7 @@ const Conta = {
     return new Date();
   },
 
-  getGrupoTransacoes(): GrupoTransacao[] {
+  getGruposTransacoes(): GrupoTransacao[] {
     const gruposTransacoes: GrupoTransacao[] = [];
     const listaTransacoes: Transacao[] = structuredClone(transacoes);
     const transacoesOrdenadas: Transacao[] = listaTransacoes.sort(
@@ -57,7 +58,7 @@ const Conta = {
         "pt-br",
         { month: "long", year: "numeric" }
       );
-      if (labelAtualGrupoTransacao != labelGrupoTransacao) {
+      if (labelAtualGrupoTransacao !== labelGrupoTransacao) {
         labelAtualGrupoTransacao = labelGrupoTransacao;
         gruposTransacoes.push({
           label: labelGrupoTransacao,
@@ -79,14 +80,41 @@ const Conta = {
       novaTransacao.tipoTransacao == TipoTransacao.PAGAMENTO_BOLETO
     ) {
       debitar(novaTransacao.valor);
+      novaTransacao.valor *= -1;
     } else {
       throw new Error("Tipo de Transação é inválida!");
     }
 
     transacoes.push(novaTransacao);
-    console.log(this.getGrupoTransacoes());
+    console.log(this.getGruposTransacoes());
 
     localStorage.setItem("transacoes", JSON.stringify(transacoes));
+  },
+
+  agruparTransacoes(): ResumoTransacoes {
+    const resumo: ResumoTransacoes = {
+      totalDepositos: 0,
+      totalTransferencias: 0,
+      totalPagamentosBoleto: 0,
+    };
+
+    this.transacoes.forEach((transacao) => {
+      switch (transacao.tipoTransacao) {
+        case TipoTransacao.DEPOSITO:
+          resumo.totalDepositos += transacao.valor;
+          break;
+
+        case TipoTransacao.TRANSFERENCIA:
+          resumo.totalTransferencias += transacao.valor;
+          break;
+
+        case TipoTransacao.PAGAMENTO_BOLETO:
+          resumo.totalPagamentosBoleto += transacao.valor;
+          break;
+      }
+    });
+
+    return resumo;
   },
 };
 
