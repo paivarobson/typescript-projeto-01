@@ -1,7 +1,7 @@
 import { Transacao } from "./Transacao.js";
 import { TipoTransacao } from "./TipoTransacao.js";
 
-let saldo: number = 3000;
+let saldo: number = JSON.parse(localStorage.getItem("saldo")) || 0;
 
 const transacoes: Transacao[] =
   JSON.parse(
@@ -22,6 +22,8 @@ function debitar(valor: number): void {
   if (valor > saldo) throw new Error("Saldo insuficiente!");
 
   saldo -= valor;
+
+  localStorage.setItem("saldo", saldo.toString());
 }
 
 function depositar(valor: number): void {
@@ -29,6 +31,7 @@ function depositar(valor: number): void {
     throw new Error("O valor a ser depositado deve ser maior que zero!");
 
   saldo += valor;
+  localStorage.setItem("saldo", saldo.toString());
 }
 
 const Conta = {
