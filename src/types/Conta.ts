@@ -1,10 +1,8 @@
 import { Transacao } from "./Transacao.js";
 import { TipoTransacao } from "./TipoTransacao.js";
 import { GrupoTransacao } from "./GrupoTransacao.js";
-import { ResumoTransacoes } from "./ResumoTransacoes.js";
 
 let saldo: number = JSON.parse(localStorage.getItem("saldo")) || 0;
-
 const transacoes: Transacao[] =
   JSON.parse(
     localStorage.getItem("transacoes"),
@@ -18,19 +16,21 @@ const transacoes: Transacao[] =
   ) || [];
 
 function debitar(valor: number): void {
-  if (valor <= 0)
+  if (valor <= 0) {
     throw new Error("O valor a ser debitado deve ser maior que zero!");
-
-  if (valor > saldo) throw new Error("Saldo insuficiente!");
+  }
+  if (valor > saldo) {
+    throw new Error("Saldo insuficiente!");
+  }
 
   saldo -= valor;
-
   localStorage.setItem("saldo", saldo.toString());
 }
 
 function depositar(valor: number): void {
-  if (valor <= 0)
+  if (valor <= 0) {
     throw new Error("O valor a ser depositado deve ser maior que zero!");
+  }
 
   saldo += valor;
   localStorage.setItem("saldo", saldo.toString());
@@ -65,7 +65,6 @@ const Conta = {
           transacoes: [],
         });
       }
-
       gruposTransacoes.at(-1).transacoes.push(transacao);
     }
 
@@ -82,39 +81,12 @@ const Conta = {
       debitar(novaTransacao.valor);
       novaTransacao.valor *= -1;
     } else {
-      throw new Error("Tipo de Transação é inválida!");
+      throw new Error("Tipo de Transação é inválido!");
     }
 
     transacoes.push(novaTransacao);
     console.log(this.getGruposTransacoes());
-
     localStorage.setItem("transacoes", JSON.stringify(transacoes));
-  },
-
-  agruparTransacoes(): ResumoTransacoes {
-    const resumo: ResumoTransacoes = {
-      totalDepositos: 0,
-      totalTransferencias: 0,
-      totalPagamentosBoleto: 0,
-    };
-
-    this.transacoes.forEach((transacao) => {
-      switch (transacao.tipoTransacao) {
-        case TipoTransacao.DEPOSITO:
-          resumo.totalDepositos += transacao.valor;
-          break;
-
-        case TipoTransacao.TRANSFERENCIA:
-          resumo.totalTransferencias += transacao.valor;
-          break;
-
-        case TipoTransacao.PAGAMENTO_BOLETO:
-          resumo.totalPagamentosBoleto += transacao.valor;
-          break;
-      }
-    });
-
-    return resumo;
   },
 };
 
