@@ -19,8 +19,3 @@ export function formatarData(data, formato = FormatoData.PADRAO) {
     }
     return data.toLocaleDateString("pt-br");
 }
-function formatarInformacoes(valor, data, FormatoData) {
-    const dataFormatada = formatarData(data, FormatoData);
-    const valorFormatado = formatarMoeda(valor);
-    return `${dataFormatada} - ${valorFormatado}`;
-}
