@@ -12,5 +12,6 @@ export class Armazenador {
         if (reviver) {
             return JSON.parse(valor, reviver);
         }
+        return JSON.parse(valor);
     }
 }
